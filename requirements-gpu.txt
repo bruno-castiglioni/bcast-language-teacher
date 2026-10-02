@@ -1,0 +1,3 @@
+# Opcional: Whisper na placa NVIDIA (Windows/Linux). Sem isso ele roda na CPU, só que mais devagar.
+nvidia-cublas-cu12
+nvidia-cudnn-cu12==9.*

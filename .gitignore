@@ -1,0 +1,14 @@
+# ambiente e modelos baixados (pesados)
+.venv/
+dados/
+__pycache__/
+*.pyc
+*.parcial
+
+# suas conversas ficam só no seu PC
+sessoes/
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

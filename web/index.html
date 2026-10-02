@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BCast Language Teacher</title>
+<link rel="icon" href="icone.svg">
+<style>
+  :root{--fundo:#0f1117;--painel:#171a23;--painel2:#1f2330;--borda:#2b3040;--txt:#e7e9ef;--fraco:#8a90a2;
+        --azul:#5b8cff;--verde:#3fcf8e;--vermelho:#ff6b6b;--ouro:#ffc857;--raio:14px}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--fundo);color:var(--txt);font:15px/1.45 "Segoe UI",system-ui,sans-serif}
+  button,select,input{font:inherit;color:inherit}
+  .app{display:grid;grid-template-rows:auto auto 1fr auto;height:100%;max-width:880px;margin:0 auto;padding:0 16px}
+  header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 0 10px;border-bottom:1px solid var(--borda)}
+  header h1{font-size:18px;margin:0 auto 0 0;letter-spacing:.3px}
+  header h1 span{color:var(--azul);font-weight:500}
+  .campo{display:flex;flex-direction:column;gap:4px;margin:10px 0;font-size:13px;color:var(--fraco)}
+  .campo input,.campo textarea{background:var(--painel2);border:1px solid var(--borda);border-radius:9px;padding:8px 10px;color:var(--txt);font:inherit;resize:vertical}
+  .check{display:flex;gap:8px;align-items:flex-start;margin:12px 0;font-size:14px}
+  .check small{display:block;color:var(--fraco)}
+  #modoLeve{font-size:11px;color:var(--ouro);margin-left:6px}
+  .st{display:flex;gap:10px;font-size:12px;color:var(--fraco)}
+  .st i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#555;margin-right:4px;vertical-align:middle}
+  .st i.ok{background:var(--verde)}.st i.carregando{background:var(--ouro)}
+  .cfg{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--borda);font-size:13px;color:var(--fraco)}
+  select,.btn{background:var(--painel2);border:1px solid var(--borda);border-radius:9px;padding:6px 10px}
+  .btn{cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{border-color:var(--azul)}.btn:disabled{opacity:.45;cursor:default}
+  .btn svg{width:16px;height:16px}
+  .btn.prim{background:var(--azul);border-color:var(--azul);color:#fff}
+  main{overflow-y:auto;padding:16px 0;display:flex;flex-direction:column;gap:12px}
+  .vazio{margin:auto;text-align:center;color:var(--fraco);max-width:480px}
+  .vazio h2{color:var(--txt);font-size:22px;margin:0 0 8px}
+  .vazio .btn{margin-top:16px;font-size:16px;padding:10px 22px}
+  .msg{max-width:78%;padding:10px 14px;border-radius:var(--raio);position:relative}
+  .sam{align-self:flex-start;background:var(--painel);border:1px solid var(--borda);border-top-left-radius:4px}
+  .eu{align-self:flex-end;background:#243a6b;border-top-right-radius:4px}
+  .quem{font-size:11px;color:var(--fraco);margin-bottom:2px;text-transform:uppercase;letter-spacing:.6px}
+  .pt{color:var(--fraco);font-size:13.5px;margin-top:6px;border-top:1px dashed var(--borda);padding-top:6px;display:none}
+  .msg.mostraPt .pt{display:block}
+  .acoes{display:flex;gap:6px;margin-top:8px}
+  .acoes button{background:none;border:1px solid var(--borda);border-radius:7px;padding:2px 8px;font-size:12px;color:var(--fraco);cursor:pointer;display:inline-flex;gap:4px;align-items:center}
+  .acoes button:hover{color:var(--txt);border-color:var(--azul)}
+  .acoes svg{width:13px;height:13px}
+  .palavras{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .palavras span{font-size:12px;background:#2a2440;border:1px solid #3d3560;border-radius:12px;padding:2px 9px}
+  .palavras b{color:var(--ouro);font-weight:600}
+  .corr{align-self:flex-end;max-width:78%;background:#2a1c1f;border:1px solid #5a2e33;border-radius:10px;padding:8px 12px;font-size:13.5px;margin-top:-6px}
+  .corr .de{color:var(--vermelho);text-decoration:line-through;text-decoration-thickness:1px}
+  .corr .para{color:var(--verde);font-weight:600}
+  .corr .porque{color:var(--fraco);margin-top:3px}
+  .corr button{margin-top:5px}
+  .sistema{align-self:center;color:var(--fraco);font-size:13px}
+  .sugestoes{align-self:stretch;display:flex;flex-direction:column;gap:6px;background:var(--painel);border:1px dashed var(--borda);border-radius:var(--raio);padding:10px}
+  .sugestoes .t{font-size:12px;color:var(--fraco)}
+  .sugestoes button{text-align:left;background:var(--painel2);border:1px solid var(--borda);border-radius:9px;padding:7px 10px;cursor:pointer}
+  .sugestoes button small{display:block;color:var(--fraco)}
+  .sugestoes button:hover{border-color:var(--azul)}
+  footer{padding:12px 0 16px;border-top:1px solid var(--borda);display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+  #mic{width:68px;height:68px;border-radius:50%;border:0;background:var(--azul);color:#fff;cursor:pointer;display:grid;place-items:center;transition:transform .1s,background .2s;touch-action:none}
+  #mic svg{width:30px;height:30px}
+  #mic.gravando{background:var(--vermelho);transform:scale(1.08);box-shadow:0 0 0 8px #ff6b6b33}
+  #mic:disabled{opacity:.4;cursor:default}
+  .texto{display:flex;gap:8px}
+  .texto input{flex:1;background:var(--painel2);border:1px solid var(--borda);border-radius:10px;padding:10px 12px;min-width:0}
+  .dica{grid-column:1/-1;font-size:12px;color:var(--fraco);text-align:center}
+  #estado{font-size:13px;color:var(--ouro);min-height:18px}
+  .lado{display:flex;flex-direction:column;gap:6px}
+  dialog{background:var(--painel);color:var(--txt);border:1px solid var(--borda);border-radius:16px;max-width:560px;width:92vw;padding:20px}
+  dialog::backdrop{background:#000a}
+  dialog h3{margin:0 0 10px}
+  .nota{font-size:44px;font-weight:700;color:var(--azul)}
+  .erro{background:var(--painel2);border-radius:9px;padding:8px 10px;margin:6px 0;font-size:14px}
+  .hist{max-height:60vh;overflow:auto}
+  .hist div{border-bottom:1px solid var(--borda);padding:8px 0;font-size:14px}
+  @media (max-width:600px){.msg,.corr{max-width:92%}footer{grid-template-columns:auto 1fr}.lado{grid-column:1/-1;flex-direction:row}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1 id="titulo">Sam <span>· English Teacher</span></h1>
+    <div class="st"><span><i id="sIa"></i>IA</span><span><i id="sOuvido"></i>ouvido</span><span><i id="sVoz"></i>voz</span><span id="modoLeve"></span></div>
+  </header>
+  <div class="cfg">
+    <label>Idioma <select id="idioma"><option value="en">Inglês</option><option value="es">Espanhol</option></select></label>
+    <label>Cena <select id="cena">
+      <option value="livre">Papo livre</option><option value="entrevista">Entrevista de emprego</option>
+      <option value="reuniao">Reunião de trabalho</option><option value="restaurante">Restaurante / café</option>
+      <option value="viagem">Viagem (aeroporto, hotel)</option></select></label>
+    <label>Nível <select id="nivel"><option value="basico">Básico</option><option value="intermediario" selected>Intermediário</option><option value="avancado">Avançado</option></select></label>
+    <label>Voz <select id="voz"></select></label>
+    <label>Velocidade <select id="vel"><option value="0.8">Devagar</option><option value="0.9">Calma</option><option value="1" selected>Normal</option><option value="1.1">Rápida</option></select></label>
+    <span style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn" id="bPerfil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Você</button>
+      <button class="btn" id="bHist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>Histórico</button>
+      <button class="btn" id="bFim" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Encerrar e ver resumo</button>
+    </span>
+  </div>
+
+  <main id="chat">
+    <div class="vazio" id="intro">
+      <h2>Bora conversar em <span class="tLingua">inglês</span>?</h2>
+      <div>Escolha a cena e o nível lá em cima. A <span class="tTutor">Sam</span> puxa o papo; você responde <b>segurando o botão azul</b> (ou a <b>barra de espaço</b>) enquanto fala.
+      Quando errar, aparece a correção logo abaixo da sua fala. No fim, o resumo mostra o que mais repetiu.</div>
+      <button class="btn prim" id="bComecar">Começar</button>
+    </div>
+  </main>
+
+  <footer>
+    <button id="mic" title="Segure pra falar (ou segure Espaço)" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg>
+    </button>
+    <div>
+      <div id="estado"></div>
+      <form class="texto" id="fTexto"><input id="tTexto" placeholder="…ou digite e aperte Enter" autocomplete="off" disabled><button class="btn" disabled id="bEnviar">Enviar</button></form>
+    </div>
+    <div class="lado">
+      <button class="btn" id="bAjuda" disabled title="Sugestões do que dizer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/></svg>Me ajuda</button>
+      <button class="btn" id="bRepetir" disabled title="Repete a última fala devagar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6"/><path d="M4 4v4.6h4.6"/></svg>Repetir devagar</button>
+    </div>
+    <div class="dica" id="rodape">Tudo roda no seu PC: Whisper ouve, o Ollama pensa, Kokoro fala. Nada sai da sua máquina.</div>
+  </footer>
+</div>
+
+<dialog id="dResumo"><h3>Como foi</h3><div id="resumoCorpo"></div><form method="dialog" style="text-align:right;margin-top:12px"><button class="btn prim">Fechar</button></form></dialog>
+<dialog id="dPerfil"><h3>Sobre você</h3>
+  <div style="color:var(--fraco);font-size:13px">O tutor usa isso pra puxar assunto e pra montar a entrevista de emprego. Fica só no seu navegador.</div>
+  <label class="campo">Seu nome<input id="pNome" maxlength="40" placeholder="Ex.: Ana"></label>
+  <label class="campo">Conte um pouco de você (em português mesmo)<textarea id="pSobre" rows="3" maxlength="400" placeholder="Ex.: Sou desenvolvedora em Recife, tenho um cachorro, curto games e quero trabalhar fora."></textarea></label>
+  <label class="check"><input type="checkbox" id="pLeve"><span>Modo leve (sem placa de vídeo)<small>Usa um modelo menor e mais rápido na CPU. As respostas ficam um pouco mais simples e a tradução só aparece quando você clica em PT.</small></span></label>
+  <form method="dialog" style="text-align:right;margin-top:12px"><button class="btn prim" id="bSalvarPerfil">Salvar</button></form></dialog>
+<dialog id="dHist"><h3>Sessões anteriores</h3><div class="hist" id="histCorpo"></div><form method="dialog" style="text-align:right;margin-top:12px"><button class="btn">Fechar</button></form></dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const IC = {
+  ouvir: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>',
+  devagar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  pt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h8M8 3v2M6 5c0 4 2 7 6 9M10 5c0 3-2 6-6 8M13 21l4-10 4 10M14.5 17.5h5"/></svg>',
+};
+
+/* ---------------------------------------------------------------- estado */
+const S = window.S = { historico: [], correcoes: [], ocupado: false, ultimaSam: '', ativo: false };
+const IDIOMAS = {
+  en: { tutor: 'Sam', titulo: 'English Teacher', lingua: 'inglês', placeholder: '…ou digite em inglês e aperte Enter',
+        vozes: [['af_heart', 'Heart (EUA, fem.)'], ['af_bella', 'Bella (EUA, fem.)'], ['am_michael', 'Michael (EUA, masc.)'],
+                ['am_fenrir', 'Fenrir (EUA, masc.)'], ['bf_emma', 'Emma (UK, fem.)'], ['bm_george', 'George (UK, masc.)']] },
+  es: { tutor: 'Alex', titulo: 'Profe de Español', lingua: 'espanhol', placeholder: '…ou digite em espanhol e aperte Enter',
+        vozes: [['ef_dora', 'Dora (fem.)'], ['em_alex', 'Alex (masc.)'], ['em_santa', 'Santa (masc.)']] },
+};
+const ID = () => IDIOMAS[$('idioma').value] || IDIOMAS.en;
+let vozPorIdioma = {};
+try { vozPorIdioma = JSON.parse(localStorage.getItem('sam_vozes') || '{}'); } catch {}
+function aplicarIdioma() {
+  const I = ID();
+  $('voz').innerHTML = I.vozes.map(([v, n]) => `<option value="${v}">${n}</option>`).join('');
+  if (vozPorIdioma[$('idioma').value]) $('voz').value = vozPorIdioma[$('idioma').value];
+  $('titulo').innerHTML = `${I.tutor} <span>· ${I.titulo}</span>`;
+  document.title = `${I.tutor} · ${I.titulo} | BCast`;
+  document.querySelectorAll('.tTutor').forEach(e => e.textContent = I.tutor);
+  document.querySelectorAll('.tLingua').forEach(e => e.textContent = I.lingua);
+  $('tTexto').placeholder = I.placeholder;
+}
+let PERFIL = { nome: '', sobre: '', leve: false, salvo: false };
+try { PERFIL = { ...PERFIL, ...JSON.parse(localStorage.getItem('sam_perfil') || '{}') }; } catch {}
+const cfg = () => ({ idioma: $('idioma').value, cena: $('cena').value, nivel: $('nivel').value, voz: $('voz').value, vel: Number($('vel').value),
+                     perfil: { nome: PERFIL.nome, sobre: PERFIL.sobre }, leve: PERFIL.leve });
+try { const c = JSON.parse(localStorage.getItem('sam_cfg') || '{}'); for (const k of ['idioma', 'cena', 'nivel', 'vel']) if (c[k]) $(k).value = c[k]; } catch {}
+aplicarIdioma();
+for (const k of ['idioma', 'cena', 'nivel', 'voz', 'vel']) $(k).addEventListener('change', () => {
+  if (k === 'idioma') aplicarIdioma();
+  if (k === 'voz') vozPorIdioma[$('idioma').value] = $('voz').value;
+  try { localStorage.setItem('sam_cfg', JSON.stringify({ idioma: $('idioma').value, cena: $('cena').value, nivel: $('nivel').value, vel: $('vel').value }));
+        localStorage.setItem('sam_vozes', JSON.stringify(vozPorIdioma)); } catch {}
+});
+// trocar cena ou nível no meio = começa um papo novo na hora (voz e velocidade valem já na próxima fala)
+for (const k of ['idioma', 'cena', 'nivel']) $(k).addEventListener('change', async () => {
+  if (!S.ativo || S.ocupado) return;
+  pararVoz(); document.querySelector('.sugestoes')?.remove();
+  S.historico = []; S.correcoes = [];
+  linhaSistema(`Nova conversa: ${$('idioma').selectedOptions[0].text} · ${$('cena').selectedOptions[0].text} · ${$('nivel').selectedOptions[0].text}`);
+  await vezDaSam();
+});
+
+async function post(rota, dados, tipo = 'json') {
+  const r = await fetch(rota, { method: 'POST', body: dados instanceof Blob ? dados : JSON.stringify(dados) });
+  if (!r.ok) { let m = r.statusText; try { m = (await r.json()).erro; } catch {} throw new Error(m); }
+  return tipo === 'blob' ? r.blob() : r.json();
+}
+function estado(t) { $('estado').textContent = t || ''; }
+function travar(sim) {
+  S.ocupado = sim;
+  for (const id of ['mic', 'tTexto', 'bEnviar', 'bAjuda', 'bRepetir']) $(id).disabled = sim || !S.ativo;
+  $('bFim').disabled = sim || S.historico.filter(h => h.quem === 'eu').length === 0;
+}
+function rolar() { const c = $('chat'); c.scrollTop = c.scrollHeight; }
+
+/* ---------------------------------------------------------------- status */
+async function status() {
+  try {
+    const s = await (await fetch('/status')).json();
+    $('sIa').className = s.ollama ? 'ok' : ''; $('sOuvido').className = s.whisper ? 'ok' : 'carregando'; $('sVoz').className = s.voz ? 'ok' : 'carregando';
+    $('sOuvido').parentElement.title = s.whisper ? 'Whisper ' + s.whisper : 'carregando…';
+    $('sIa').parentElement.title = s.ollama ? 'Cérebro: ' + ((PERFIL.leve ? s.modelo_leve : s.modelo) || 'nenhum modelo — rode: ollama pull qwen3:4b') : 'Ollama fora do ar';
+    $('modoLeve').textContent = PERFIL.leve ? 'modo leve · ' + (s.modelo_leve || '?') : '';
+    return s;
+  } catch { return null; }
+}
+setInterval(status, 4000); status();
+
+/* ---------------------------------------------------------------- voz */
+let audioAtual = null;
+function pararVoz() { if (audioAtual) { audioAtual.pause(); audioAtual = null; } }
+async function tocar(texto, vel) {
+  pararVoz();
+  try {
+    const blob = await post('/falar', { texto, voz: cfg().voz, vel: vel || cfg().vel }, 'blob');
+    const a = new Audio(URL.createObjectURL(blob)); audioAtual = a;
+    await a.play().catch(() => {});
+    await new Promise(r => { a.onended = r; a.onpause = r; });
+  } catch (e) { estado('Voz falhou: ' + e.message); }
+}
+
+/* ---------------------------------------------------------------- chat */
+function bolhaSam(r) {
+  const el = document.createElement('div'); el.className = 'msg sam';
+  el.innerHTML = `<div class="quem">${esc(ID().tutor)}</div><div>${esc(r.reply)}</div><div class="pt">${esc(r.reply_pt)}</div>
+    ${r.new_words && r.new_words.length ? `<div class="palavras">${r.new_words.map(w => `<span><b>${esc(w.en)}</b> · ${esc(w.pt)}</span>`).join('')}</div>` : ''}
+    <div class="acoes"><button data-a="ouvir">${IC.ouvir}ouvir</button><button data-a="devagar">${IC.devagar}devagar</button><button data-a="pt">${IC.pt}PT</button></div>`;
+  el.querySelector('.acoes').onclick = ev => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.a === 'ouvir') tocar(r.reply);
+    if (b.dataset.a === 'devagar') tocar(r.reply, 0.75);
+    if (b.dataset.a === 'pt') {
+      el.classList.toggle('mostraPt');
+      if (!r.reply_pt && !r.traduzindo) {
+        r.traduzindo = true; el.querySelector('.pt').textContent = 'traduzindo…';
+        post('/traduzir', { texto: r.reply, leve: PERFIL.leve, idioma: $('idioma').value }).then(t => { r.reply_pt = t.pt; el.querySelector('.pt').textContent = t.pt; })
+          .catch(() => { el.querySelector('.pt').textContent = '(não consegui traduzir)'; r.traduzindo = false; });
+      }
+    }
+  };
+  $('chat').appendChild(el); rolar();
+}
+function bolhaEu(texto) {
+  const el = document.createElement('div'); el.className = 'msg eu';
+  el.innerHTML = `<div class="quem">Você</div><div>${esc(texto)}</div>`;
+  $('chat').appendChild(el); rolar();
+}
+function cartaoCorrecao(c) {
+  const el = document.createElement('div'); el.className = 'corr';
+  el.innerHTML = `<span class="de">${esc(c.original)}</span> → <span class="para">${esc(c.better)}</span><div class="porque">${esc(c.why_pt)}</div>
+    <div class="acoes"><button>${IC.ouvir}ouvir o jeito certo</button></div>`;
+  el.querySelector('button').onclick = () => tocar(c.better, 0.9);
+  $('chat').appendChild(el); rolar();
+}
+function linhaSistema(t) { const el = document.createElement('div'); el.className = 'sistema'; el.textContent = t; $('chat').appendChild(el); rolar(); }
+
+async function vezDaSam() {
+  // Cada rodada tem um número: só a MAIS RECENTE mexe na tela. (Antes, a fala antiga da Sam terminava
+  // e destravava tudo no meio da rodada nova -> mensagens fora de ordem e "Sam sem memória".)
+  const minha = S.turno = (S.turno || 0) + 1;
+  travar(true); estado(`${ID().tutor} está pensando…`);
+  let r = null;
+  try { r = await post('/conversar', { historico: S.historico, ...cfg() }); }
+  catch (e) { linhaSistema('Deu ruim: ' + e.message); }
+  if (minha !== S.turno) return;
+  if (r) {
+    if (r.correction) { cartaoCorrecao(r.correction); S.correcoes.push(r.correction); }
+    S.historico.push({ quem: 'sam', texto: r.reply }); S.ultimaSam = r.reply;
+    bolhaSam(r);
+  }
+  travar(false);                                   // dá pra responder enquanto ela fala (interrompe a voz)
+  if (r) { estado(`${ID().tutor} está falando… (pode responder por cima)`); await tocar(r.reply); }
+  if (minha === S.turno && !S.ocupado) estado('Sua vez — segure o botão azul ou Espaço e fale.');
+}
+async function euFalei(texto) {
+  texto = texto.trim(); if (!texto || S.ocupado) return;
+  document.querySelector('.sugestoes')?.remove();
+  bolhaEu(texto); S.historico.push({ quem: 'eu', texto });
+  await vezDaSam();
+}
+
+/* ---------------------------------------------------------------- microfone */
+let gravador = null, pedacos = [], fluxo = null;
+async function comecarGravar() {
+  if (gravador || $('mic').disabled) return;
+  pararVoz();
+  try { fluxo = fluxo || await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch { estado('Sem permissão de microfone — libere no cadeado da barra de endereço.'); return; }
+  pedacos = []; gravador = new MediaRecorder(fluxo, { mimeType: 'audio/webm;codecs=opus' });
+  gravador.ondataavailable = e => e.data.size && pedacos.push(e.data);
+  gravador.start(); $('mic').classList.add('gravando'); estado('Ouvindo… solte quando terminar.');
+  gravador.t0 = performance.now();
+}
+async function pararGravar() {
+  if (!gravador) return;
+  const g = gravador; gravador = null; $('mic').classList.remove('gravando');
+  const curto = performance.now() - g.t0 < 400;
+  await new Promise(r => { g.onstop = r; g.stop(); });
+  if (curto) { estado('Segure o botão enquanto fala.'); return; }
+  travar(true); estado('Transcrevendo…');
+  try {
+    const { texto } = await post('/ouvir?idioma=' + $('idioma').value, new Blob(pedacos, { type: 'audio/webm' }));
+    if (!texto) { estado('Não entendi nada — tenta de novo, mais perto do microfone.'); travar(false); return; }
+    travar(false); await euFalei(texto);
+  } catch (e) { estado('Falhou ao ouvir: ' + e.message); travar(false); }
+}
+$('mic').addEventListener('pointerdown', e => { e.preventDefault(); comecarGravar(); });
+addEventListener('pointerup', pararGravar);
+addEventListener('keydown', e => {
+  if (e.code !== 'Space' || e.repeat || document.activeElement === $('tTexto') || !S.ativo) return;
+  e.preventDefault(); comecarGravar();
+});
+addEventListener('keyup', e => { if (e.code === 'Space' && document.activeElement !== $('tTexto')) { e.preventDefault(); pararGravar(); } });
+
+/* ---------------------------------------------------------------- botões */
+$('fTexto').onsubmit = e => { e.preventDefault(); const t = $('tTexto').value; $('tTexto').value = ''; $('tTexto').blur(); euFalei(t); };
+$('bRepetir').onclick = () => S.ultimaSam && tocar(S.ultimaSam, 0.75);
+$('bAjuda').onclick = async () => {
+  travar(true); estado('Pensando em ideias…');
+  try {
+    const r = await post('/ajuda', { historico: S.historico, ...cfg() });
+    document.querySelector('.sugestoes')?.remove();
+    const el = document.createElement('div'); el.className = 'sugestoes';
+    el.innerHTML = '<div class="t">Ideias — clique pra ouvir, depois fale do seu jeito (ou clique duas vezes pra mandar):</div>' +
+      r.options.map((o, i) => `<button data-i="${i}">${esc(o.en)}<small>${esc(o.pt)}</small></button>`).join('');
+    el.onclick = ev => { const b = ev.target.closest('button'); if (b) tocar(r.options[b.dataset.i].en, 0.9); };
+    el.ondblclick = ev => { const b = ev.target.closest('button'); if (b) euFalei(r.options[b.dataset.i].en); };
+    $('chat').appendChild(el); rolar();
+  } catch (e) { estado('Falhou: ' + e.message); }
+  travar(false); estado('Sua vez.');
+};
+function abrirPerfil() {
+  $('pNome').value = PERFIL.nome; $('pSobre').value = PERFIL.sobre; $('pLeve').checked = !!PERFIL.leve;
+  $('dPerfil').showModal();
+}
+$('bPerfil').onclick = abrirPerfil;
+$('bSalvarPerfil').onclick = () => {
+  PERFIL = { nome: $('pNome').value.trim(), sobre: $('pSobre').value.trim(), leve: $('pLeve').checked, salvo: true };
+  try { localStorage.setItem('sam_perfil', JSON.stringify(PERFIL)); } catch {}
+  status();
+  if (S.querComecar) { S.querComecar = false; setTimeout(iniciar, 50); }
+};
+async function iniciar() {
+  if (!PERFIL.salvo) { S.querComecar = true; abrirPerfil(); return; }    // 1ª vez: se apresenta pra Sam
+  const s = await status();
+  if (!s || !s.ollama) { estado('A IA (Ollama) não respondeu. O Ollama está aberto?'); return; }
+  if (!s.modelo) { estado('O Ollama não tem nenhum modelo. Rode no terminal:  ollama pull qwen3:4b'); return; }
+  $('intro').remove(); S.ativo = true; S.historico = []; S.correcoes = [];
+  linhaSistema(`${$('idioma').selectedOptions[0].text} · ${$('cena').selectedOptions[0].text} · ${$('nivel').selectedOptions[0].text}`);
+  await vezDaSam();
+}
+$('bComecar').onclick = iniciar;
+$('bFim').onclick = async () => {
+  travar(true); estado('Montando seu resumo…'); pararVoz();
+  try {
+    const r = await post('/resumo', { historico: S.historico, correcoes: S.correcoes, ...cfg() });
+    $('resumoCorpo').innerHTML = `<div class="nota">${esc(r.nota)}<small style="font-size:16px;color:var(--fraco)">/10 fluência</small></div>
+      <p><b>Mandou bem:</b> ${esc(r.pontos_fortes)}</p>
+      ${r.erros.length ? '<p><b>Pra treinar:</b></p>' + r.erros.map(e => `<div class="erro"><span class="de" style="color:var(--vermelho)">${esc(e.errado)}</span> → <b style="color:var(--verde)">${esc(e.certo)}</b><br><small style="color:var(--fraco)">${esc(e.dica)}</small></div>`).join('') : '<p>Nenhum erro marcante. Sobe o nível!</p>'}
+      <p><b>Próxima vez:</b> ${esc(r.proximo_passo)}</p>`;
+    $('dResumo').showModal();
+    // nova sessão
+    S.ativo = false;
+    $('chat').innerHTML = '<div class="vazio" id="intro"><h2>Sessão salva.</h2><div>Troque a cena ou o nível e comece outra quando quiser.</div><button class="btn prim" id="bComecar2">Nova conversa</button></div>';
+    $('bComecar2').onclick = iniciar;
+  } catch (e) { estado('Falhou: ' + e.message); }
+  travar(false); estado('');
+};
+$('bHist').onclick = async () => {
+  const l = await (await fetch('/sessoes')).json();
+  const nomeCena = v => ({ livre: 'Papo livre', entrevista: 'Entrevista', reuniao: 'Reunião', restaurante: 'Restaurante', viagem: 'Viagem' }[v] || v);
+  $('histCorpo').innerHTML = l.length ? l.map(s => `<div><b>${esc(s.quando)}</b> · ${s.idioma === 'es' ? 'Espanhol' : 'Inglês'} · ${esc(nomeCena(s.cena))} · ${esc(s.falas)} falas · nota <b>${esc(s.nota ?? '?')}</b>
+    ${s.erros.length ? '<br><small style="color:var(--fraco)">' + s.erros.map(e => esc(e.errado) + ' → ' + esc(e.certo)).join(' · ') + '</small>' : ''}</div>`).join('')
+    : '<div style="color:var(--fraco)">Nenhuma sessão ainda.</div>';
+  $('dHist').showModal();
+};
+</script>
+</body>
+</html>
